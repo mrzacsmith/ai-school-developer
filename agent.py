@@ -152,11 +152,22 @@ llm_with_tools = llm.bind_tools(tools)
 # Create the agent
 agent = (
     # Fill in the code to create the agent here
+    {
+        "input": lambda x: x["input"],
+        "agent_scratchpad": lambda x: format_to_openai_tool_messages(
+            x['intermediate_steps']
+        )
+    }
+    | prompt
+    | llm_with_tools
+    | OpenAIToolsAgentOutputParser()
+    | traceable
+
 )
 
 # Create the agent executor
-agent_executor = (
-    # Fill in the code to create the agent executor here
+agent_executor = AgentExecutor(
+    agent=agent, tools=tools, verbose=True
 )
 
 # Main loop to prompt the user
