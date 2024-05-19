@@ -23,13 +23,13 @@ def create_react_app_with_vite():
 
     It navigates to the root directory, finds or creates the 'app' directory,
     and uses the npm 'create vite@latest' command to scaffold a new React project
-    with Vite as the build tool and React with swc as the template. If the process is
+    with Vite as the build tool and React as the template. If the process is
     successful, it prints a success message. If any subprocess command fails,
     it catches the CalledProcessError exception and prints an error message.
     """
     try:
         # Create a new Vite project in the app directory with React template
-        subprocess.run(['npm', 'create', 'vite@latest', '.', '--template', 'react-swc'], check=True)
+        subprocess.run(['npm', 'create', 'vite@latest', '.', '--template', 'react'], check=True)
         # Print success message if project creation is successful
         return f"Successfully created a new React app using Vite."
     except subprocess.CalledProcessError as e:
@@ -53,7 +53,7 @@ def create_directory(directory: str) -> str:
     str: Success or error message.
     """
     if ".." in directory:
-        return f"Cannot make a direction with '..' in path"
+        return f"Cannot make a directory with '..' in path"
     try:
         os.makedirs(directory, exist_ok=True)
         subprocess.run(["chmod", "u+w", directory], check=True)
@@ -70,6 +70,7 @@ def find_file(filename: str, path: str) -> Optional[str]:
     Recursively searches for a file in the given path.
     Returns string of full path to file, or None if file not found.
     """
+    # TODO handle multiple matches
     for root, dirs, files in os.walk(path):
         if filename in files:
             return os.path.join(root, filename)
@@ -149,26 +150,19 @@ prompt = ChatPromptTemplate.from_messages(
 # Bind the tools to the language model
 llm_with_tools = llm.bind_tools(tools)
 
-# Create the agent
 agent = (
-    # Fill in the code to create the agent here
-    {
-        "input": lambda x: x["input"],
-        "agent_scratchpad": lambda x: format_to_openai_tool_messages(
-            x['intermediate_steps']
-        )
-    }
-    | prompt
-    | llm_with_tools
-    | OpenAIToolsAgentOutputParser()
-    | traceable
-
+        {
+            "input": lambda x: x["input"],
+            "agent_scratchpad": lambda x: format_to_openai_tool_messages(
+                x["intermediate_steps"]
+            ),
+        }
+        | prompt
+        | llm_with_tools
+        | OpenAIToolsAgentOutputParser()
 )
 
-# Create the agent executor
-agent_executor = AgentExecutor(
-    agent=agent, tools=tools, verbose=True
-)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # Main loop to prompt the user
 while True:
