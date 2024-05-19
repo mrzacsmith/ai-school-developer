@@ -87,8 +87,20 @@ def create_file(filename: str, content: str = "", directory=""):
 @tool
 def update_file(filename: str, content: str, directory: str = ""):
     """Updates, appends, or modifies an existing file with new content."""
-    # Fill in the implementation here
-    pass
+    if directory:
+        file_path = os.path.join(ROOT_DIR, directory, filename)
+    else:
+        file_path = find_file(filename, ROOT_DIR)
+
+    if file_path and os.path.exists(file_path):
+        try:
+            with open(file_path, "a") as file:
+                file.write(content)
+            return f"File '{filename}' updated successfully at: '{file_path}'"
+        except Exception as e:
+            return f"Failed to update file '{filename}' at: '{file_path}' - {str(e)}"
+    else:
+        return f"File '{filename}' not found at: '{file_path}'"
 
 
 # List of tools to use
