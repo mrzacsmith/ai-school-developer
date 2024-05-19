@@ -29,7 +29,7 @@ def create_react_app_with_vite():
     """
     try:
         # Create a new Vite project in the app directory with React template
-        subprocess.run(['npm', 'create', 'vite@latest', '.', '--template', 'react'], check=True)
+        subprocess.run(['npm', 'create', 'vite@latest', 'app', '--template', 'react'], check=True)
         # Print success message if project creation is successful
         return f"Successfully created a new React app using Vite."
     except subprocess.CalledProcessError as e:
