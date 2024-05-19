@@ -18,9 +18,26 @@ VALID_FILE_TYPES = {"py", "txt", "md", "cpp", "c", "java", "js", "html", "css", 
 
 @tool
 def create_react_app_with_vite():
-    """Creates a new React application using Vite in the 'app' directory."""
-    # Fill in the implementation here
-    pass
+    """
+    This function creates a new React application using Vite in the 'app' directory located in the root.
+
+    It navigates to the root directory, finds or creates the 'app' directory,
+    and uses the npm 'create vite@latest' command to scaffold a new React project
+    with Vite as the build tool and React with swc as the template. If the process is
+    successful, it prints a success message. If any subprocess command fails,
+    it catches the CalledProcessError exception and prints an error message.
+    """
+    try:
+        # Create a new Vite project in the app directory with React template
+        subprocess.run(['npm', 'create', 'vite@latest', '.', '--template', 'react-swc'], check=True)
+        # Print success message if project creation is successful
+        return f"Successfully created a new React app using Vite."
+    except subprocess.CalledProcessError as e:
+        # Print error message if any subprocess command fails
+        return f"An error occurred: {e}"
+    except Exception as e:
+        # Print error message if any other exception occurs
+        return f"An unexpected error occurred: {e}"
 
 
 @tool
