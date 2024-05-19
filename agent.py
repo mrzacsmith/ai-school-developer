@@ -10,6 +10,7 @@ from langchain.agents.format_scratchpad.openai_tools import (
 )
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 import subprocess
+from typing import Optional
 
 @tool
 def create_react_app_with_vite():
@@ -20,14 +21,29 @@ def create_react_app_with_vite():
 @tool
 def create_directory(directory: str):
     """Creates a new writable directory with the given name if it does not exist."""
-    # Fill in the implementation here
-    pass
+    try:
+        if not os.path.exists(directory):
+            subprocess.run(["mkdir", "-p", directory], check=True)
+            subprocess.run(["chmod", "u+w", directory], check=True)
+            return f"Directory '{directory}' created and set as writable."
+        else:
+            subprocess.run(["chmod", "u+w", directory], check=True)
+            return f"Directory '{directory}' already exists and is set as writable."
+    except subprocess.CalledProcessError as e:
+        return f"Error creating directory '{directory}': {e}"
+    except Exception as e:
+        return f"Error creating directory {e}"
 
 @tool
-def find_file(filename: str, path: str):
-    """Recursively searches for a file in the given path."""
-    # Fill in the implementation here
-    pass
+def find_file(filename: str, path: str) -> Optional[str]:
+    """
+    Recursively searches for a file in the given path.
+    Returns string of full path to file, or None if file not found.
+    """
+    for root, dirs, files in os.walk(path):
+        if filename in files:
+            return os.path.join(root, filename)
+    return None
 
 @tool
 def create_file(filename: str, content: str = "", directory=ROOT_DIR, file_type: str = ""):
