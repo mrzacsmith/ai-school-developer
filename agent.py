@@ -12,27 +12,40 @@ from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputP
 import subprocess
 from typing import Optional
 
+ROOT_DIR = "./"
+VALID_FILE_TYPES = {"py", "txt", "md", "cpp", "c", "java", "js", "html", "css", "ts", "json"}
+
+
 @tool
 def create_react_app_with_vite():
     """Creates a new React application using Vite in the 'app' directory."""
     # Fill in the implementation here
     pass
 
+
 @tool
-def create_directory(directory: str):
-    """Creates a new writable directory with the given name if it does not exist."""
+def create_directory(directory: str) -> str:
+    """
+    Create a new writable directory with the given directory name if it does not exist.
+    If the directory exists, it ensures the directory is writable.
+
+    Parameters:
+    directory (str): The name of the directory to create.
+
+    Returns:
+    str: Success or error message.
+    """
+    if ".." in directory:
+        return f"Cannot make a direction with '..' in path"
     try:
-        if not os.path.exists(directory):
-            subprocess.run(["mkdir", "-p", directory], check=True)
-            subprocess.run(["chmod", "u+w", directory], check=True)
-            return f"Directory '{directory}' created and set as writable."
-        else:
-            subprocess.run(["chmod", "u+w", directory], check=True)
-            return f"Directory '{directory}' already exists and is set as writable."
+        os.makedirs(directory, exist_ok=True)
+        subprocess.run(["chmod", "u+w", directory], check=True)
+        return f"Directory successfully '{directory}' created and set as writeable."
     except subprocess.CalledProcessError as e:
-        return f"Error creating directory '{directory}': {e}"
+        return f"Failed to create or set writable directory '{directory}': {e}"
     except Exception as e:
-        return f"Error creating directory {e}"
+        return f"An unexpected error occurred: {e}"
+
 
 @tool
 def find_file(filename: str, path: str) -> Optional[str]:
@@ -45,11 +58,31 @@ def find_file(filename: str, path: str) -> Optional[str]:
             return os.path.join(root, filename)
     return None
 
+
 @tool
-def create_file(filename: str, content: str = "", directory=ROOT_DIR, file_type: str = ""):
-    """Creates a new file with specified file type and content in the specified directory."""
-    # Fill in the implementation here
-    pass
+def create_file(filename: str, content: str = "", directory=""):
+    """Creates a new file and content in the specified directory."""
+    # Validate file type
+    try:
+        file_stem, file_type = filename.split(".")
+        assert file_type in VALID_FILE_TYPES
+    except:
+        return f"Invalid filename {filename} - must end with a valid file type: {VALID_FILE_TYPES}"
+    directory_path = os.path.join(ROOT_DIR, directory)
+    file_path = os.path.join(directory_path, filename)
+    if not os.path.exists(file_path):
+        try:
+            with open(file_path, "w") as file:
+                file.write(content)
+            print(f"File '{filename}' created successfully at: '{file_path}'.")
+            return f"File '{filename}' created successfully at: '{file_path}'."
+        except Exception as e:
+            print(f"Failed to create file '{filename}' at: '{file_path}': {str(e)}")
+            return f"Failed to create file '{filename}' at: '{file_path}': {str(e)}"
+    else:
+        print(f"File '{filename}' already exists at: '{file_path}'.")
+        return f"File '{filename}' already exists at: '{file_path}'."
+
 
 @tool
 def update_file(filename: str, content: str, directory: str = ""):
@@ -57,13 +90,14 @@ def update_file(filename: str, content: str, directory: str = ""):
     # Fill in the implementation here
     pass
 
+
 # List of tools to use
 tools = [
-    ShellTool(ask_human_input=True), 
-    create_directory, 
-    create_react_app_with_vite, 
-    find_file, 
-    create_file, 
+    ShellTool(ask_human_input=True),
+    create_directory,
+    create_react_app_with_vite,
+    find_file,
+    create_file,
     update_file
     # Add more tools if needed
 ]
