@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#game-container {
+    text-align: center;
+}
+
+#drawing-canvas {
+    border: 1px solid black;
+    margin-top: 10px;
+}
+
+#timer-container {
+    margin-top: 10px;
+}
+
+#feedback-container {
+    margin-top: 10px;
+}
+
+#history-container {
+    margin-top: 20px;
+}
+
+#try-again {
+    margin-top: 20px;
+}

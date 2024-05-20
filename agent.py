@@ -166,5 +166,8 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # Main loop to prompt the user
 while True:
-    user_prompt = input("Prompt: ")
+    user_prompt = input("Prompt (press 'q' to quit): ")
+    if user_prompt.lower() == 'q':
+        print("Exiting...")
+        break
     list(agent_executor.stream({"input": user_prompt}))
